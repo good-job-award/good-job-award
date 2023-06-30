@@ -1,3 +1,4 @@
 function hello() {
-    console.log("hello world!");
+    Logger.log("hello world!");
+    Logger.log(getBacklogRanking());
 }
