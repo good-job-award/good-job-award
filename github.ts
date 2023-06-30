@@ -57,7 +57,7 @@ function correctPr(targetRepository: string, options, map: Map<string, number>) 
         const commentJson = commentResponse.getContentText();
         const commentData = JSON.parse(commentJson);
         commentData.forEach(comment => {
-          if ((today - Date.parse(comment['updated_at'])) / 86400000 <= 7) {
+          if ((today - Date.parse(comment['updated_at'])) / 86400000 <= aggregateDate) {
             const commentUserName = comment['user']['login'];
             const commentCount = map.get(commentUserName) || 0;
             map.set(commentUserName, commentCount + 1);
@@ -94,7 +94,7 @@ function correctIssue(targetRepository: string, options, map: Map<string, number
       const commentJson = commentResponse.getContentText();
       const commentData = JSON.parse(commentJson);
       commentData.forEach(comment => {
-        if ((today - Date.parse(comment['updated_at'])) / 86400000 <= 7) {
+        if ((today - Date.parse(comment['updated_at'])) / 86400000 <= aggregateDate) {
           const commentUserName = comment['user']['login'];
           const commentCount = map.get(commentUserName) || 0;
           map.set(commentUserName, commentCount + 1);
