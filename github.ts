@@ -1,5 +1,7 @@
 // GitHubのPersonal Access Tokne
 const githubToken: string = userProperties.getProperty('GITHUB_TOKEN') || '';
+// 更新取得対象のリポジトリ
+const targetRepositories: string[] = (userProperties.getProperty('GITHUB_TARGET_REPOS') || '').split(',');
 
 function getGithubRanking(): string {
     const headers = {
@@ -14,11 +16,13 @@ function getGithubRanking(): string {
 
     const map = new Map<string, number>();
 
+    for (const targetRepository of targetRepositories) {
     // PRを集計する
-    correctPr(options, map);
+    correctPr(targetRepository, options, map);
 
     // Issueを集計する
-    correctIssue(options, map);
+    correctIssue(targetRepository, options, map);
+    }
 
     // 集計値出力
     const sortedRanking = Array.from(map.entries()).sort((r1, r2) => r2[1] - r1[1]);
@@ -31,10 +35,10 @@ function getGithubRanking(): string {
     return rankingStrings.join('\n');
 }
 
-function correctPr(options, map: Map<string, number>) {
+function correctPr(targetRepository: string, options, map: Map<string, number>) {
     // PRの一覧取得
   // TODO: 対象のリポジトリをいい感じに編集できるようにする
-  const response = UrlFetchApp.fetch('https://api.github.com/repos/kotanin/TestActions/pulls?state=all', options);
+  const response = UrlFetchApp.fetch(`https://api.github.com/repos/${targetRepository}/pulls?state=all`, options);
     const json = response.getContentText();
     const data = JSON.parse(json);
 
@@ -42,7 +46,7 @@ function correctPr(options, map: Map<string, number>) {
     data.forEach(pr => {
       // 7日以内のPRを対象に集計する
       const diffDays = (today - Date.parse(pr['updated_at'])) / 86400000;
-      if (diffDays <= 7) {
+      if (diffDays <= aggregateDate) {
         // PRを立てた人を集計する
         const userName:string = pr['user']['login'];
         const count = map.get(userName) || 0;
@@ -63,10 +67,10 @@ function correctPr(options, map: Map<string, number>) {
     });
 }
 
-function correctIssue(options, map: Map<string, number>) {
+function correctIssue(targetRepository: string, options, map: Map<string, number>) {
   // Issueの一覧取得
   // TODO: 対象のリポジトリをいい感じに編集できるようにする
-  const response = UrlFetchApp.fetch('https://api.github.com/repos/kotanin/TestActions/issues?state=all', options);
+  const response = UrlFetchApp.fetch(`https://api.github.com/repos/${targetRepository}/issues?state=all`, options);
   const json = response.getContentText();
   const data = JSON.parse(json);
 
@@ -79,7 +83,7 @@ function correctIssue(options, map: Map<string, number>) {
 
     // 7日以内のIssueを対象に集計する
     const diffDays = (today - Date.parse(issue['updated_at'])) / 86400000;
-    if (diffDays <= 7) {
+    if (diffDays <= aggregateDate) {
       // PRを立てた人を集計する
       const userName:string = issue['user']['login'];
       const count = map.get(userName) || 0;

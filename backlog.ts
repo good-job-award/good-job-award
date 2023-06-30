@@ -3,6 +3,8 @@ const userProperties = PropertiesService.getScriptProperties();
 const backlogHost: string = userProperties.getProperty('BACKLOG_HOST') || '';
 // BacklogのAPIキー
 const backlogApiKey: string = userProperties.getProperty('BACKLOG_APIKEY') || '';
+// 集計期間の日数
+const aggregateDate: number = parseInt(userProperties.getProperty('AGGREGATE_DATE') || '7');
 
 type BacklogActivity = {
     id: number;
@@ -15,7 +17,6 @@ type BacklogUser = {
 }
 
 const RANKING_SIZE = 3;
-const AGGREGATE_DATE = 7;
 const FETCH_COUNT = 100;
 
 function getBacklogRanking(): string {
@@ -42,7 +43,7 @@ function fetchBacklogActivities(paramMaxId?: number, fetchedActivities?: Backlog
     from.setMinutes(0);
     from.setSeconds(0);
     from.setMilliseconds(0);
-    from.setDate(from.getDate() - AGGREGATE_DATE);
+    from.setDate(from.getDate() - aggregateDate);
 
     const url = `https://${backlogHost}/api/v2/space/activities?apiKey=${backlogApiKey}&count=${FETCH_COUNT}${paramMaxId ? '&maxId=' + paramMaxId: ''}`;
     const response = UrlFetchApp.fetch(url);
