@@ -36,7 +36,7 @@ function getBacklogRanking(): string {
     return rankingStrings.join('\n');
 }
 
-function fetchBacklogActivities(paramMaxId?: number: fetchedActivities?: BacklogActivity[]): BacklogActivity[] {
+function fetchBacklogActivities(paramMaxId?: number, fetchedActivities?: BacklogActivity[]): BacklogActivity[] {
     const from = new Date();
     from.setHours(0);
     from.setMinutes(0);
