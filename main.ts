@@ -1,5 +1,5 @@
-function hello() {
-    Logger.log("hello world!");
+function main() {
+    const githubMessage = getGithubRanking();
     const backlogMessage = getBacklogRanking();
-    postChatwork(backlogMessage);
+    postChatwork(githubMessage + '\n\n' + backlogMessage);
 }

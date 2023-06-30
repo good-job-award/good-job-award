@@ -1,6 +1,9 @@
-async function github() {      
+// GitHubのPersonal Access Tokne
+const githubToken: string = userProperties.getProperty('GITHUB_TOKEN') || '';
+
+function getGithubRanking(): string {
     var headers = {
-      'Authorization': 'Bearer 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',
+      'Authorization': `Bearer ${githubToken}`,
       'Accept': 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28'
     };
@@ -12,25 +15,26 @@ async function github() {
     const map = new Map<string, number>();
 
     // PRを集計する
-    correctPr(headers, options, map);
+    correctPr(options, map);
 
     // Issueを集計する
-    correctIssue(headers, options, map);
+    correctIssue(options, map);
 
     // 集計値出力
-    var array = Array.from(map.entries()).sort((r1, r2) => r2[1] - r1[1]);
-    console.log('GitHub更新ランキング')
-    var position = 1;
-    array.forEach(pair => {
-      if (position < 3) {
-        console.log(position++ + '位: ' + pair[0] + '  ' + pair[1] + "回！");
-      }
-    });
+    const sortedRanking = Array.from(map.entries()).sort((r1, r2) => r2[1] - r1[1]);
+    const rankingStrings: string[] = [];
+    const rankSize = sortedRanking.length < RANKING_SIZE ? sortedRanking.length: RANKING_SIZE;
+    rankingStrings.push('GitHub更新ランキング');
+    for (let i = 0; i < rankSize; i++) if (i < sortedRanking.length) {
+        rankingStrings.push(`${i + 1}位: ${sortedRanking[i][0]} ${sortedRanking[i][1]}pt`);
+    }
+    return rankingStrings.join('\n');
 }
 
-async function correctPr(headers, options, map) {
+function correctPr(options, map) {
     // PRの一覧取得
-    var response = UrlFetchApp.fetch('https://api.github.com/repos/kotanin/TestActions/pulls?state=all', options);
+  // TODO: 対象のリポジトリをいい感じに編集できるようにする
+  var response = UrlFetchApp.fetch('https://api.github.com/repos/kotanin/TestActions/pulls?state=all', options);
     var json = response.getContentText();
     var data = JSON.parse(json);
 
@@ -65,8 +69,9 @@ async function correctPr(headers, options, map) {
     });
 }
 
-async function correctIssue(headers, options, map) {
-  // PRの一覧取得
+function correctIssue(options, map) {
+  // Issueの一覧取得
+  // TODO: 対象のリポジトリをいい感じに編集できるようにする
   var response = UrlFetchApp.fetch('https://api.github.com/repos/kotanin/TestActions/issues?state=all', options);
   var json = response.getContentText();
   var data = JSON.parse(json);
