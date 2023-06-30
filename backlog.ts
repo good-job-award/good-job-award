@@ -29,7 +29,7 @@ function getBacklogRanking(): string {
     const sortedRanking = Array.from(ranking.entries()).sort((r1, r2) => r2[1] - r1[1]);
     const rankSize = sortedRanking.length < RANKING_SIZE ? sortedRanking.length: RANKING_SIZE;
     const rankingStrings: string[] = [];
-    rankingStrings.push('Backlog更新ランキング')
+    rankingStrings.push('Backlog更新ランキング');
     for (let i = 0; i < rankSize; i++) if (i < sortedRanking.length) {
         rankingStrings.push(`${i + 1}位: ${sortedRanking[i][0]} ${sortedRanking[i][1]}pt`);
     }
@@ -47,7 +47,7 @@ function fetchBacklogActivities(paramMaxId?: number, fetchedActivities?: Backlog
     const url = `https://${backlogHost}/api/v2/space/activities?apiKey=${backlogApiKey}&count=${FETCH_COUNT}${paramMaxId ? '&maxId=' + paramMaxId: ''}`;
     const response = UrlFetchApp.fetch(url);
     const responseJSON = JSON.parse(response.getContentText());
-    const activities: BacklogActivity[] = []
+    const activities: BacklogActivity[] = [];
     let maxId: number = 0;
     for (const activity of responseJSON) {
         const created = new Date(activity.created);
@@ -56,7 +56,7 @@ function fetchBacklogActivities(paramMaxId?: number, fetchedActivities?: Backlog
                 ...activity,
                 created
             });
-            maxId = activity.id
+            maxId = activity.id;
         }
     }
     const concatActivities = fetchedActivities ? fetchedActivities.concat(activities) : activities;
